@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Perfect Match - Dog Adoption Matcher</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --airbnb-red: #FF385C;
+            --airbnb-red-dark: #E31C5F;
+            --airbnb-black: #222222;
+            --airbnb-gray: #717171;
+            --airbnb-light-gray: #DDDDDD;
+            --airbnb-bg: #FFFFFF;
+            --airbnb-bg-gray: #F7F7F7;
+            --airbnb-border: #EBEBEB;
+        }
+
+        .language-picker {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            gap: 0.25rem;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 22px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            z-index: 1000;
+            border: 1px solid var(--airbnb-border);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 0.875rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 18px;
+            transition: all 0.2s ease;
+            color: var(--airbnb-black);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .lang-btn:hover {
+            background: var(--airbnb-bg-gray);
+        }
+
+        .lang-btn.active {
+            background: var(--airbnb-black);
+            color: white;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--airbnb-bg);
+            color: var(--airbnb-black);
+            min-height: 100vh;
+            line-height: 1.43;
+        }
+
+        h1, h2, h3 {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .app-container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem 0 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--airbnb-black);
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            color: var(--airbnb-gray);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        .intro-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            border: 1px solid var(--airbnb-border);
+        }
+
+        .intro-section h2 {
+            color: var(--airbnb-black);
+            font-size: 1.625rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .intro-section p {
+            font-size: 1rem;
+            color: var(--airbnb-gray);
+            margin-bottom: 1rem;
+            line-height: 1.625;
+        }
+
+        .principles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .principle {
+            background: var(--airbnb-bg-gray);
+            padding: 1.25rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--airbnb-black);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid var(--airbnb-border);
+        }
+
+        .principle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--airbnb-red-dark), var(--airbnb-red));
+            color: white;
+            border: none;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #D01051, var(--airbnb-red-dark));
+            transform: scale(1.02);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--airbnb-black);
+            border: 1px solid var(--airbnb-black);
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .btn-secondary:hover {
+            background: var(--airbnb-bg-gray);
+            transform: scale(1.02);
+        }
+
+        .questionnaire {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .progress-bar {
+            background: var(--airbnb-bg-gray);
+            border-radius: 4px;
+            height: 8px;
+            margin-bottom: 2.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--airbnb-black);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .question-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            border: 1px solid var(--airbnb-border);
+        }
+
+        .section-label {
+            display: inline-block;
+            background: var(--airbnb-bg-gray);
+            color: var(--airbnb-black);
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .question-card h3 {
+            color: var(--airbnb-black);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option {
+            background: white;
+            border: 1px solid var(--airbnb-light-gray);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            color: var(--airbnb-black);
+        }
+
+        .option:hover {
+            border-color: var(--airbnb-black);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .option.selected {
+            background: var(--airbnb-black);
+            color: white;
+            border-color: var(--airbnb-black);
+        }
+
+        .option.multi-selected {
+            background: var(--airbnb-red);
+            color: white;
+            border-color: var(--airbnb-red);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .results-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .user-profile {
+            background: var(--airbnb-black);
+            color: white;
+            padding: 3rem 2.5rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .user-profile h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .user-profile p {
+            font-size: 1.125rem;
+            line-height: 1.625;
+            opacity: 0.92;
+        }
+
+        .dog-cards {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .dog-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--airbnb-border);
+            transition: all 0.3s ease;
+        }
+
+        .dog-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .dog-image {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            background: linear-gradient(135deg, var(--airbnb-bg-gray) 0%, #E0E0E0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+        }
+
+        .dog-content {
+            padding: 1.5rem;
+        }
+
+        .dog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .dog-name {
+            font-size: 1.5rem;
+            color: var(--airbnb-black);
+            font-weight: 600;
+        }
+
+        .match-badge {
+            background: var(--airbnb-red);
+            color: white;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .dog-info {
+            color: var(--airbnb-gray);
+            font-size: 0.9375rem;
+            margin-bottom: 1rem;
+        }
+
+        .personality-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .tag {
+            background: var(--airbnb-bg-gray);
+            color: var(--airbnb-black);
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border: 1px solid var(--airbnb-border);
+        }
+
+        .match-reason {
+            background: var(--airbnb-bg-gray);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 3px solid var(--airbnb-red);
+        }
+
+        .match-reason h4 {
+            color: var(--airbnb-black);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .match-reason p {
+            color: var(--airbnb-gray);
+            font-size: 0.9375rem;
+            line-height: 1.5;
+        }
+
+        .no-matches {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--airbnb-border);
+        }
+
+        .no-matches h3 {
+            color: var(--airbnb-black);
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .suggestions {
+            text-align: left;
+            margin-top: 2rem;
+            background: var(--airbnb-bg-gray);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .suggestions h4 {
+            color: var(--airbnb-black);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .suggestions ul {
+            list-style-position: inside;
+            color: var(--airbnb-gray);
+        }
+
+        .suggestions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+
+            .question-card, .intro-section {
+                padding: 1.5rem;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+            }
+
+            .dog-image {
+                height: 240px;
+            }
+
+            .language-picker {
+                top: 1rem;
+                right: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Translations
+        const translations = {
+            'zh-TW': {
+                // Header
+                title: "尋找您的完美夥伴",
+                subtitle: "用心配對的領養體驗",
+                
+                // Intro page
+                welcome: "歡迎！🐾",
+                introText: "這個體驗能幫助您找到真正適合您生活方式的狗狗，而不僅僅是您的偏好。透過回答簡短的問卷，您將獲得個人化的推薦，並清楚了解為什麼這些狗狗適合您。",
+                principle1: "✨ 福利優先配對",
+                principle2: "🏡 生活方式導向",
+                principle3: "💡 清楚的解釋",
+                principle4: "❤️ 彼此的幸福",
+                goalText: "我們的目標是在您和新夥伴之間建立持久、快樂的關係。讓我們一起找到完美的配對吧！",
+                startButton: "開始問卷",
+                
+                // Questionnaire
+                questionOf: "第 {current} 題，共 {total} 題",
+                multiSelectHint: "可複選",
+                previous: "上一題",
+                next: "下一題",
+                seeResults: "查看結果",
+                
+                // Sections
+                section1: "生活方式與時間",
+                section2: "居住環境",
+                section3: "經驗與學習意願",
+                section4: "個性相容性",
+                section5: "長期展望",
+                
+                // Questions
+                q1: "每天與狗狗積極互動的時間",
+                q1_o1: "少於 30 分鐘",
+                q1_o2: "30-60 分鐘",
+                q1_o3: "1-2 小時",
+                q1_o4: "2 小時以上",
+                
+                q2: "平日狗狗獨處的平均時間",
+                q2_o1: "大部分時間在家 / 遠距工作",
+                q2_o2: "4-6 小時",
+                q2_o3: "7-9 小時",
+                q2_o4: "9 小時以上",
+                
+                q3: "個人活動量",
+                q3_o1: "很少運動",
+                q3_o2: "每天散步",
+                q3_o3: "戶外活動 / 健行 / 跑步",
+                q3_o4: "幾乎每天高強度活動",
+                
+                q4: "居住空間",
+                q4_o1: "套房 / 小公寓",
+                q4_o2: "有獨立起居空間的公寓",
+                q4_o3: "有戶外空間的房屋",
+                
+                q5: "對吠叫或噪音的容忍度",
+                q5_o1: "完全無法接受",
+                q5_o2: "偶爾可接受",
+                q5_o3: "可透過訓練接受",
+                q5_o4: "完全可以接受",
+                
+                q6: "養狗經驗",
+                q6_o1: "首次飼主",
+                q6_o2: "曾飼養成犬",
+                q6_o3: "有訓練或行為問題處理經驗",
+                
+                q7: "投入學習和訓練的意願",
+                q7_o1: "希望訓練需求最少",
+                q7_o2: "願意參加基礎訓練課程",
+                q7_o3: "願意積極學習犬類行為和訓練",
+                
+                q8: "您最能應對哪種特質？",
+                q8_o1: "非常黏人 / 依賴",
+                q8_o2: "獨立 / 需求低",
+                q8_o3: "活潑 / 表達力強",
+                q8_o4: "平靜 / 低刺激",
+                
+                q9: "哪些挑戰對您來說最難接受？（可複選）",
+                q9_o1: "分離焦慮",
+                q9_o2: "拉扯牽繩",
+                q9_o3: "怕生人",
+                q9_o4: "精力旺盛",
+                q9_o5: "以上皆無",
+                
+                q10: "未來 3-5 年預期的生活變化",
+                q10_o1: "很可能有重大變化（搬家、旅行）",
+                q10_o2: "可能會有變化",
+                q10_o3: "大致穩定",
+                
+                // Results
+                resultsTitle: "您的完美配對！🎉",
+                resultsSubtitle: "根據您的生活方式和偏好",
+                yourProfile: "您的理想狗狗類型",
+                whyThisDog: "為什麼選 {name}？",
+                years: "歲",
+                matchPercent: "{percent}% 配對",
+                startOver: "重新開始",
+                
+                // No matches
+                noMatchesTitle: "目前找不到理想的配對",
+                noMatchesText: "根據您目前的生活方式，我們希望確保任何領養都能對您和狗狗都成功。",
+                suggestionsTitle: "考慮這些選項：",
+                suggestion1: "寄養狗狗以了解牠是否適合您的作息",
+                suggestion2: "尋找年長或低活動量的狗狗",
+                suggestion3: "調整您的時間安排以配合狗狗的需求",
+                suggestion4: "考慮領養貓咪（牠們更獨立！）",
+                
+                // Profile descriptions
+                profileLowMedium: "最佳配對：低至中等活動量的狗狗，具有",
+                profileMediumHigh: "最佳配對：中至高活動量的狗狗，具有",
+                profileHigh: "最佳配對：高活動量的狗狗，具有",
+                personalityIndependent: "獨立",
+                personalityAffectionate: "親人",
+                personalityEnergetic: "活潑",
+                personalityCalm: "平靜",
+                profileEnd: "的個性，能很好地適應您的作息和居住空間。",
+                
+                // Dog personality tags
+                tagAffectionate: "親人",
+                tagCalm: "平靜",
+                tagFriendly: "友善",
+                tagEnergetic: "活潑",
+                tagPlayful: "愛玩",
+                tagLoyal: "忠誠",
+                tagIndependent: "獨立",
+                tagQuiet: "安靜",
+                tagGentle: "溫和",
+                tagActive: "活躍",
+                tagSmart: "聰明",
+                tagSweet: "甜美",
+                tagAlert: "警覺",
+                tagProtective: "保護性強",
+                tagIntelligent: "聰穎",
+            },
+            'en': {
+                // Header
+                title: "Find Your Perfect Match",
+                subtitle: "A thoughtful approach to dog adoption",
+                
+                // Intro page
+                welcome: "Welcome! 🐾",
+                introText: "This experience helps you find dogs that truly fit your lifestyle, not just your preferences. By answering a short questionnaire, you'll receive personalized recommendations with transparent explanations of why each dog is suitable for you.",
+                principle1: "✨ Welfare-First Matching",
+                principle2: "🏡 Lifestyle-Driven",
+                principle3: "💡 Clear Explanations",
+                principle4: "❤️ Mutual Well-Being",
+                goalText: "Our goal is to create lasting, happy relationships between you and your new companion. Let's find the perfect match together!",
+                startButton: "Start the Questionnaire",
+                
+                // Questionnaire
+                questionOf: "Question {current} of {total}",
+                multiSelectHint: "Select all that apply",
+                previous: "Previous",
+                next: "Next",
+                seeResults: "See Results",
+                
+                // Sections
+                section1: "Lifestyle & Availability",
+                section2: "Living Environment",
+                section3: "Experience & Learning",
+                section4: "Personality Compatibility",
+                section5: "Long-Term Outlook",
+                
+                // Questions
+                q1: "Daily time for active interaction with a dog",
+                q1_o1: "Less than 30 minutes",
+                q1_o2: "30-60 minutes",
+                q1_o3: "1-2 hours",
+                q1_o4: "2+ hours",
+                
+                q2: "Average time the dog would be left alone on weekdays",
+                q2_o1: "Mostly at home / remote work",
+                q2_o2: "4-6 hours",
+                q2_o3: "7-9 hours",
+                q2_o4: "9+ hours",
+                
+                q3: "Personal activity level",
+                q3_o1: "Rarely exercise",
+                q3_o2: "Daily walking",
+                q3_o3: "Outdoor / hiking / running",
+                q3_o4: "High-intensity activity almost every day",
+                
+                q4: "Living space",
+                q4_o1: "Studio / small apartment",
+                q4_o2: "Apartment with separate living area",
+                q4_o3: "House or home with outdoor space",
+                
+                q5: "Tolerance for barking or noise",
+                q5_o1: "Not tolerant at all",
+                q5_o2: "Occasionally acceptable",
+                q5_o3: "Acceptable with training",
+                q5_o4: "Fully tolerant",
+                
+                q6: "Previous dog ownership experience",
+                q6_o1: "First-time owner",
+                q6_o2: "Owned adult dogs before",
+                q6_o3: "Experience with training or behavioral challenges",
+                
+                q7: "Willingness to invest time in learning and training",
+                q7_o1: "Prefer minimal training",
+                q7_o2: "Will attend basic training classes",
+                q7_o3: "Will actively learn canine behavior and training",
+                
+                q8: "Which traits are you most comfortable handling?",
+                q8_o1: "Very affectionate / clingy",
+                q8_o2: "Independent / low-demand",
+                q8_o3: "Energetic / expressive",
+                q8_o4: "Calm / low-stimulation",
+                
+                q9: "Which challenges would be hardest for you to accept? (Select all that apply)",
+                q9_o1: "Separation anxiety",
+                q9_o2: "Leash pulling",
+                q9_o3: "Fear of strangers",
+                q9_o4: "High energy",
+                q9_o5: "None of the above",
+                
+                q10: "Expected life changes in the next 3-5 years",
+                q10_o1: "High likelihood of major changes (relocation, travel)",
+                q10_o2: "Possible changes",
+                q10_o3: "Mostly stable",
+                
+                // Results
+                resultsTitle: "Your Perfect Matches! 🎉",
+                resultsSubtitle: "Based on your lifestyle and preferences",
+                yourProfile: "Your Ideal Dog Profile",
+                whyThisDog: "Why {name}?",
+                years: "years",
+                matchPercent: "{percent}% Match",
+                startOver: "Start Over",
+                
+                // No matches
+                noMatchesTitle: "We couldn't find ideal matches right now",
+                noMatchesText: "Based on your current lifestyle, we want to ensure any adoption would be successful for both you and the dog.",
+                suggestionsTitle: "Consider these options:",
+                suggestion1: "Foster a dog to see how it fits your routine",
+                suggestion2: "Look for senior or low-energy dogs that need less activity",
+                suggestion3: "Adjust your schedule to accommodate a dog's needs",
+                suggestion4: "Consider adopting a cat instead (they're more independent!)",
+                
+                // Profile descriptions
+                profileLowMedium: "Best matches: low-to-medium activity dogs with",
+                profileMediumHigh: "Best matches: medium-to-high activity dogs with",
+                profileHigh: "Best matches: high activity dogs with",
+                personalityIndependent: "independent",
+                personalityAffectionate: "affectionate",
+                personalityEnergetic: "energetic",
+                personalityCalm: "calm",
+                profileEnd: "personalities that adapt well to your routine and living space.",
+                
+                // Dog personality tags
+                tagAffectionate: "Affectionate",
+                tagCalm: "Calm",
+                tagFriendly: "Friendly",
+                tagEnergetic: "Energetic",
+                tagPlayful: "Playful",
+                tagLoyal: "Loyal",
+                tagIndependent: "Independent",
+                tagQuiet: "Quiet",
+                tagGentle: "Gentle",
+                tagActive: "Active",
+                tagSmart: "Smart",
+                tagSweet: "Sweet",
+                tagAlert: "Alert",
+                tagProtective: "Protective",
+                tagIntelligent: "Intelligent",
+            },
+            'nl': {
+                // Header
+                title: "Vind Jouw Perfecte Match",
+                subtitle: "Een doordachte benadering van hondenadoptie",
+                
+                // Intro page
+                welcome: "Welkom! 🐾",
+                introText: "Deze ervaring helpt je honden te vinden die echt bij jouw levensstijl passen, niet alleen bij jouw voorkeuren. Door een korte vragenlijst in te vullen, ontvang je gepersonaliseerde aanbevelingen met transparante uitleg waarom elke hond geschikt voor je is.",
+                principle1: "✨ Welzijn-Eerst Matching",
+                principle2: "🏡 Levensstijl-Gedreven",
+                principle3: "💡 Duidelijke Uitleg",
+                principle4: "❤️ Wederzijds Welzijn",
+                goalText: "Ons doel is om duurzame, gelukkige relaties te creëren tussen jou en je nieuwe metgezel. Laten we samen de perfecte match vinden!",
+                startButton: "Start de Vragenlijst",
+                
+                // Questionnaire
+                questionOf: "Vraag {current} van {total}",
+                multiSelectHint: "Selecteer alles wat van toepassing is",
+                previous: "Vorige",
+                next: "Volgende",
+                seeResults: "Bekijk Resultaten",
+                
+                // Sections
+                section1: "Levensstijl & Beschikbaarheid",
+                section2: "Woonomgeving",
+                section3: "Ervaring & Leerwilligheid",
+                section4: "Persoonlijkheidscompatibiliteit",
+                section5: "Langetermijnperspectief",
+                
+                // Questions
+                q1: "Dagelijkse tijd voor actieve interactie met een hond",
+                q1_o1: "Minder dan 30 minuten",
+                q1_o2: "30-60 minuten",
+                q1_o3: "1-2 uur",
+                q1_o4: "2+ uur",
+                
+                q2: "Gemiddelde tijd dat de hond alleen zou zijn op weekdagen",
+                q2_o1: "Meestal thuis / thuiswerken",
+                q2_o2: "4-6 uur",
+                q2_o3: "7-9 uur",
+                q2_o4: "9+ uur",
+                
+                q3: "Persoonlijk activiteitsniveau",
+                q3_o1: "Zelden sporten",
+                q3_o2: "Dagelijks wandelen",
+                q3_o3: "Buiten / wandelen / hardlopen",
+                q3_o4: "Bijna dagelijks hoge-intensiteit activiteit",
+                
+                q4: "Woonruimte",
+                q4_o1: "Studio / klein appartement",
+                q4_o2: "Appartement met aparte woonruimte",
+                q4_o3: "Huis of woning met buitenruimte",
+                
+                q5: "Tolerantie voor blaffen of lawaai",
+                q5_o1: "Helemaal niet tolerant",
+                q5_o2: "Af en toe acceptabel",
+                q5_o3: "Acceptabel met training",
+                q5_o4: "Volledig tolerant",
+                
+                q6: "Eerdere ervaring met honden",
+                q6_o1: "Eerste keer eigenaar",
+                q6_o2: "Eerder volwassen honden gehad",
+                q6_o3: "Ervaring met training of gedragsproblemen",
+                
+                q7: "Bereidheid om tijd te investeren in leren en training",
+                q7_o1: "Voorkeur voor minimale training",
+                q7_o2: "Zal basis trainingslessen bijwonen",
+                q7_o3: "Zal actief hondengedrag en training leren",
+                
+                q8: "Welke eigenschappen kun je het beste aan?",
+                q8_o1: "Zeer aanhankelijk / klefferig",
+                q8_o2: "Onafhankelijk / weinig eisen",
+                q8_o3: "Energiek / expressief",
+                q8_o4: "Kalm / weinig prikkels",
+                
+                q9: "Welke uitdagingen zou je het moeilijkst vinden om te accepteren? (Selecteer alles wat van toepassing is)",
+                q9_o1: "Scheidingsangst",
+                q9_o2: "Aan de riem trekken",
+                q9_o3: "Bang voor vreemden",
+                q9_o4: "Hoge energie",
+                q9_o5: "Geen van bovenstaande",
+                
+                q10: "Verwachte levensveranderingen in de komende 3-5 jaar",
+                q10_o1: "Grote kans op grote veranderingen (verhuizen, reizen)",
+                q10_o2: "Mogelijke veranderingen",
+                q10_o3: "Meestal stabiel",
+                
+                // Results
+                resultsTitle: "Jouw Perfecte Matches! 🎉",
+                resultsSubtitle: "Gebaseerd op jouw levensstijl en voorkeuren",
+                yourProfile: "Jouw Ideale Hondenprofiel",
+                whyThisDog: "Waarom {name}?",
+                years: "jaar",
+                matchPercent: "{percent}% Match",
+                startOver: "Opnieuw Beginnen",
+                
+                // No matches
+                noMatchesTitle: "We konden nu geen ideale matches vinden",
+                noMatchesText: "Op basis van jouw huidige levensstijl willen we ervoor zorgen dat elke adoptie succesvol zou zijn voor zowel jou als de hond.",
+                suggestionsTitle: "Overweeg deze opties:",
+                suggestion1: "Een hond in pleegzorg nemen om te zien hoe het in je routine past",
+                suggestion2: "Zoek naar senior of lage-energie honden die minder activiteit nodig hebben",
+                suggestion3: "Pas je schema aan om aan de behoeften van een hond te voldoen",
+                suggestion4: "Overweeg in plaats daarvan een kat te adopteren (ze zijn onafhankelijker!)",
+                
+                // Profile descriptions
+                profileLowMedium: "Beste matches: lage tot middelmatige activiteit honden met",
+                profileMediumHigh: "Beste matches: middelmatige tot hoge activiteit honden met",
+                profileHigh: "Beste matches: hoge activiteit honden met",
+                personalityIndependent: "onafhankelijke",
+                personalityAffectionate: "aanhankelijke",
+                personalityEnergetic: "energieke",
+                personalityCalm: "kalme",
+                profileEnd: "persoonlijkheden die zich goed aanpassen aan je routine en woonruimte.",
+                
+                // Dog personality tags
+                tagAffectionate: "Aanhankelijk",
+                tagCalm: "Kalm",
+                tagFriendly: "Vriendelijk",
+                tagEnergetic: "Energiek",
+                tagPlayful: "Speels",
+                tagLoyal: "Loyaal",
+                tagIndependent: "Onafhankelijk",
+                tagQuiet: "Rustig",
+                tagGentle: "Zachtaardig",
+                tagActive: "Actief",
+                tagSmart: "Slim",
+                tagSweet: "Lief",
+                tagAlert: "Alert",
+                tagProtective: "Beschermend",
+                tagIntelligent: "Intelligent",
+            }
+        };
+
+        // Sample dog database - in production, this would come from Google Sheets
+        const dogDatabase = [
+            {
+                id: 1,
+                name: "Luna",
+                age: 3,
+                size: "Medium",
+                activity_level: 3,
+                companionship_need: "medium",
+                training_difficulty: "low",
+                barking_tendency: "low",
+                environment_adaptability: "medium",
+                personality_tags: ["Affectionate", "Calm", "Friendly"],
+                image_emoji: "🐕",
+                notes: "Sweet and gentle, great for first-time owners"
+            },
+            {
+                id: 2,
+                name: "Max",
+                age: 2,
+                size: "Large",
+                activity_level: 5,
+                companionship_need: "high",
+                training_difficulty: "medium",
+                barking_tendency: "medium",
+                environment_adaptability: "large",
+                personality_tags: ["Energetic", "Playful", "Loyal"],
+                image_emoji: "🦮",
+                notes: "Needs an active family who loves outdoor adventures"
+            },
+            {
+                id: 3,
+                name: "Bella",
+                age: 5,
+                size: "Small",
+                activity_level: 2,
+                companionship_need: "low",
+                training_difficulty: "low",
+                barking_tendency: "low",
+                environment_adaptability: "small",
+                personality_tags: ["Independent", "Quiet", "Gentle"],
+                image_emoji: "🐩",
+                notes: "Perfect apartment companion, low maintenance"
+            },
+            {
+                id: 4,
+                name: "Charlie",
+                age: 4,
+                size: "Medium",
+                activity_level: 4,
+                companionship_need: "medium",
+                training_difficulty: "low",
+                barking_tendency: "low",
+                environment_adaptability: "medium",
+                personality_tags: ["Friendly", "Active", "Smart"],
+                image_emoji: "🐕‍🦺",
+                notes: "Well-balanced dog, great with routines"
+            },
+            {
+                id: 5,
+                name: "Daisy",
+                age: 6,
+                size: "Small",
+                activity_level: 2,
+                companionship_need: "medium",
+                training_difficulty: "low",
+                barking_tendency: "medium",
+                environment_adaptability: "small",
+                personality_tags: ["Sweet", "Calm", "Alert"],
+                image_emoji: "🐶",
+                notes: "Senior companion, loves gentle walks"
+            },
+            {
+                id: 6,
+                name: "Rocky",
+                age: 1,
+                size: "Large",
+                activity_level: 5,
+                companionship_need: "high",
+                training_difficulty: "high",
+                barking_tendency: "high",
+                environment_adaptability: "large",
+                personality_tags: ["Energetic", "Protective", "Intelligent"],
+                image_emoji: "🐕",
+                notes: "Young and spirited, needs experienced owner"
+            }
+        ];
+
+        const questionnaire = [
+            {
+                section: "Lifestyle & Availability",
+                questions: [
+                    {
+                        id: "q1",
+                        text: "Daily time for active interaction with a dog",
+                        options: [
+                            "Less than 30 minutes",
+                            "30-60 minutes",
+                            "1-2 hours",
+                            "2+ hours"
+                        ],
+                        dimension: "activity_time"
+                    },
+                    {
+                        id: "q2",
+                        text: "Average time the dog would be left alone on weekdays",
+                        options: [
+                            "Mostly at home / remote work",
+                            "4-6 hours",
+                            "7-9 hours",
+                            "9+ hours"
+                        ],
+                        dimension: "alone_time"
+                    },
+                    {
+                        id: "q3",
+                        text: "Personal activity level",
+                        options: [
+                            "Rarely exercise",
+                            "Daily walking",
+                            "Outdoor / hiking / running",
+                            "High-intensity activity almost every day"
+                        ],
+                        dimension: "exercise_level"
+                    }
+                ]
+            },
+            {
+                section: "Living Environment",
+                questions: [
+                    {
+                        id: "q4",
+                        text: "Living space",
+                        options: [
+                            "Studio / small apartment",
+                            "Apartment with separate living area",
+                            "House or home with outdoor space"
+                        ],
+                        dimension: "space"
+                    },
+                    {
+                        id: "q5",
+                        text: "Tolerance for barking or noise",
+                        options: [
+                            "Not tolerant at all",
+                            "Occasionally acceptable",
+                            "Acceptable with training",
+                            "Fully tolerant"
+                        ],
+                        dimension: "noise_tolerance"
+                    }
+                ]
+            },
+            {
+                section: "Experience & Learning",
+                questions: [
+                    {
+                        id: "q6",
+                        text: "Previous dog ownership experience",
+                        options: [
+                            "First-time owner",
+                            "Owned adult dogs before",
+                            "Experience with training or behavioral challenges"
+                        ],
+                        dimension: "experience"
+                    },
+                    {
+                        id: "q7",
+                        text: "Willingness to invest time in learning and training",
+                        options: [
+                            "Prefer minimal training",
+                            "Will attend basic training classes",
+                            "Will actively learn canine behavior and training"
+                        ],
+                        dimension: "training_willingness"
+                    }
+                ]
+            },
+            {
+                section: "Personality Compatibility",
+                questions: [
+                    {
+                        id: "q8",
+                        text: "Which traits are you most comfortable handling?",
+                        options: [
+                            "Very affectionate / clingy",
+                            "Independent / low-demand",
+                            "Energetic / expressive",
+                            "Calm / low-stimulation"
+                        ],
+                        dimension: "personality_match"
+                    },
+                    {
+                        id: "q9",
+                        text: "Which challenges would be hardest for you to accept? (Select all that apply)",
+                        options: [
+                            "Separation anxiety",
+                            "Leash pulling",
+                            "Fear of strangers",
+                            "High energy",
+                            "None of the above"
+                        ],
+                        dimension: "dealbreakers",
+                        multiSelect: true
+                    }
+                ]
+            },
+            {
+                section: "Long-Term Outlook",
+                questions: [
+                    {
+                        id: "q10",
+                        text: "Expected life changes in the next 3-5 years",
+                        options: [
+                            "High likelihood of major changes (relocation, travel)",
+                            "Possible changes",
+                            "Mostly stable"
+                        ],
+                        dimension: "stability"
+                    }
+                ]
+            }
+        ];
+
+        function DogAdoptionMatcher() {
+            const [stage, setStage] = useState('intro'); // intro, questionnaire, results
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [answers, setAnswers] = useState({});
+            const [matches, setMatches] = useState([]);
+            const [language, setLanguage] = useState('zh-TW'); // Default to Traditional Chinese
+
+            const t = translations[language];
+
+            const allQuestions = questionnaire.flatMap(section => 
+                section.questions.map(q => ({ ...q, section: section.section }))
+            );
+
+            const progress = ((currentQuestion) / allQuestions.length) * 100;
+
+            const handleAnswer = (questionId, answer) => {
+                const question = allQuestions[currentQuestion];
+                
+                if (question.multiSelect) {
+                    const currentAnswers = answers[questionId] || [];
+                    if (currentAnswers.includes(answer)) {
+                        setAnswers({
+                            ...answers,
+                            [questionId]: currentAnswers.filter(a => a !== answer)
+                        });
+                    } else {
+                        setAnswers({
+                            ...answers,
+                            [questionId]: [...currentAnswers, answer]
+                        });
+                    }
+                } else {
+                    setAnswers({
+                        ...answers,
+                        [questionId]: answer
+                    });
+                }
+            };
+
+            const nextQuestion = () => {
+                if (currentQuestion < allQuestions.length - 1) {
+                    setCurrentQuestion(currentQuestion + 1);
+                } else {
+                    calculateMatches();
+                }
+            };
+
+            const prevQuestion = () => {
+                if (currentQuestion > 0) {
+                    setCurrentQuestion(currentQuestion - 1);
+                }
+            };
+
+            const calculateMatches = () => {
+                const userProfile = analyzeUserProfile(answers);
+                const filtered = applyHardFilters(dogDatabase, userProfile);
+                const scored = scoreAndRankDogs(filtered, userProfile);
+                setMatches(scored.slice(0, 5));
+                setStage('results');
+            };
+
+            const analyzeUserProfile = (answers) => {
+                const profile = {
+                    activity_time: answers.q1 || "",
+                    alone_time: answers.q2 || "",
+                    exercise_level: answers.q3 || "",
+                    space: answers.q4 || "",
+                    noise_tolerance: answers.q5 || "",
+                    experience: answers.q6 || "",
+                    training_willingness: answers.q7 || "",
+                    personality_match: answers.q8 || "",
+                    dealbreakers: answers.q9 || [],
+                    stability: answers.q10 || ""
+                };
+
+                // Convert to numeric scores
+                profile.activity_score = ["Less than 30 minutes", "30-60 minutes", "1-2 hours", "2+ hours"].indexOf(profile.activity_time) + 1;
+                profile.exercise_score = ["Rarely exercise", "Daily walking", "Outdoor / hiking / running", "High-intensity activity almost every day"].indexOf(profile.exercise_level) + 1;
+                profile.space_score = ["Studio / small apartment", "Apartment with separate living area", "House or home with outdoor space"].indexOf(profile.space) + 1;
+                profile.experience_score = ["First-time owner", "Owned adult dogs before", "Experience with training or behavioral challenges"].indexOf(profile.experience) + 1;
+                
+                return profile;
+            };
+
+            const applyHardFilters = (dogs, profile) => {
+                return dogs.filter(dog => {
+                    // High alone time + high companionship need
+                    if (profile.alone_time === "9+ hours" && dog.companionship_need === "high") {
+                        return false;
+                    }
+
+                    // First-time owner + high training difficulty
+                    if (profile.experience === "First-time owner" && dog.training_difficulty === "high") {
+                        return false;
+                    }
+
+                    // Zero noise tolerance + vocal dog
+                    if (profile.noise_tolerance === "Not tolerant at all" && dog.barking_tendency === "high") {
+                        return false;
+                    }
+
+                    // Low activity + high energy dog
+                    if (profile.activity_score <= 2 && dog.activity_level >= 4) {
+                        return false;
+                    }
+
+                    // Dealbreakers check
+                    if (profile.dealbreakers.includes("High energy") && dog.activity_level >= 4) {
+                        return false;
+                    }
+
+                    if (profile.dealbreakers.includes("Separation anxiety") && dog.companionship_need === "high") {
+                        return false;
+                    }
+
+                    return true;
+                });
+            };
+
+            const scoreAndRankDogs = (dogs, profile) => {
+                return dogs.map(dog => {
+                    let score = 0;
+
+                    // Activity match (30% weight)
+                    const activityDiff = Math.abs(dog.activity_level - profile.activity_score);
+                    score += (1 - activityDiff / 4) * 0.3;
+
+                    // Exercise match (25% weight)
+                    const exerciseDiff = Math.abs(dog.activity_level - profile.exercise_score);
+                    score += (1 - exerciseDiff / 4) * 0.25;
+
+                    // Space compatibility (15% weight)
+                    const spaceMatch = {
+                        "small": profile.space_score >= 1,
+                        "medium": profile.space_score >= 2,
+                        "large": profile.space_score >= 3
+                    };
+                    score += (spaceMatch[dog.environment_adaptability] ? 1 : 0.3) * 0.15;
+
+                    // Training compatibility (15% weight)
+                    const trainingMatch = {
+                        "low": profile.experience_score >= 1,
+                        "medium": profile.experience_score >= 2,
+                        "high": profile.experience_score >= 3
+                    };
+                    score += (trainingMatch[dog.training_difficulty] ? 1 : 0.5) * 0.15;
+
+                    // Companionship match (15% weight)
+                    const companionshipMatch = {
+                        "low": profile.alone_time !== "Mostly at home / remote work",
+                        "medium": true,
+                        "high": ["Mostly at home / remote work", "4-6 hours"].includes(profile.alone_time)
+                    };
+                    score += (companionshipMatch[dog.companionship_need] ? 1 : 0.4) * 0.15;
+
+                    const matchPercentage = Math.round(score * 100);
+                    const reasons = generateMatchReasons(dog, profile);
+
+                    return {
+                        ...dog,
+                        matchScore: score,
+                        matchPercentage,
+                        reasons
+                    };
+                }).sort((a, b) => b.matchScore - a.matchScore);
+            };
+
+            const generateMatchReasons = (dog, profile) => {
+                const reasons = [];
+
+                if (Math.abs(dog.activity_level - profile.activity_score) <= 1) {
+                    reasons.push(`${dog.name}'s activity level aligns perfectly with your lifestyle`);
+                }
+
+                if (profile.experience === "First-time owner" && dog.training_difficulty === "low") {
+                    reasons.push("Great for first-time owners - easy to train and manage");
+                }
+
+                if (dog.companionship_need === "low" && profile.alone_time !== "Mostly at home / remote work") {
+                    reasons.push("Independent personality suits your work schedule");
+                }
+
+                if (dog.barking_tendency === "low") {
+                    reasons.push("Quiet and well-mannered, ideal for apartment living");
+                }
+
+                if (dog.personality_tags.includes("Calm") && profile.personality_match === "Calm / low-stimulation") {
+                    reasons.push("Calm temperament matches your preference perfectly");
+                }
+
+                if (reasons.length === 0) {
+                    reasons.push(`${dog.name} has a balanced personality that adapts well to various homes`);
+                }
+
+                return reasons.join(". ");
+            };
+
+            const getUserProfileDescription = () => {
+                const profile = analyzeUserProfile(answers);
+                
+                let activityDesc = t.profileLowMedium;
+                if (profile.activity_score >= 4) activityDesc = t.profileHigh;
+                else if (profile.activity_score >= 3) activityDesc = t.profileMediumHigh;
+
+                let personalityDesc = t.personalityIndependent;
+                if (profile.personality_match?.includes("affectionate") || profile.personality_match?.includes("黏人")) 
+                    personalityDesc = t.personalityAffectionate;
+                else if (profile.personality_match?.includes("Energetic") || profile.personality_match?.includes("活潑")) 
+                    personalityDesc = t.personalityEnergetic;
+                else if (profile.personality_match?.includes("Calm") || profile.personality_match?.includes("平靜")) 
+                    personalityDesc = t.personalityCalm;
+
+                return `${activityDesc} ${personalityDesc} ${t.profileEnd}`;
+            };
+
+            if (stage === 'intro') {
+                return (
+                    <div className="app-container">
+                        <div className="language-picker">
+                            <button 
+                                className={`lang-btn ${language === 'zh-TW' ? 'active' : ''}`}
+                                onClick={() => setLanguage('zh-TW')}
+                            >
+                                繁中
+                            </button>
+                            <button 
+                                className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+                                onClick={() => setLanguage('en')}
+                            >
+                                EN
+                            </button>
+                            <button 
+                                className={`lang-btn ${language === 'nl' ? 'active' : ''}`}
+                                onClick={() => setLanguage('nl')}
+                            >
+                                NL
+                            </button>
+                        </div>
+
+                        <div className="header">
+                            <h1>{t.title}</h1>
+                            <p>{t.subtitle}</p>
+                        </div>
+
+                        <div className="intro-section">
+                            <h2>{t.welcome}</h2>
+                            <p>{t.introText}</p>
+
+                            <div className="principles">
+                                <div className="principle">{t.principle1}</div>
+                                <div className="principle">{t.principle2}</div>
+                                <div className="principle">{t.principle3}</div>
+                                <div className="principle">{t.principle4}</div>
+                            </div>
+
+                            <p style={{ marginTop: '1.5rem' }}>
+                                {t.goalText}
+                            </p>
+
+                            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                                <button className="btn-primary" onClick={() => setStage('questionnaire')}>
+                                    {t.startButton}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (stage === 'questionnaire') {
+                const question = allQuestions[currentQuestion];
+                const currentAnswer = answers[question.id];
+                const canProceed = question.multiSelect ? 
+                    (currentAnswer && currentAnswer.length > 0) : 
+                    currentAnswer !== undefined;
+
+                // Get translated question and options
+                const questionKey = question.id;
+                const questionText = t[questionKey] || question.text;
+                const sectionText = t[`section${questionKey.substring(1, 2) <= 3 ? questionKey.substring(1, 2) : questionKey.substring(1, 3) <= 7 ? Math.ceil(parseInt(questionKey.substring(1)) / 3) + 1 : questionKey.substring(1) <= 8 ? 4 : 5}`];
+                
+                // Map section names correctly
+                let sectionNumber = 1;
+                if (currentQuestion >= 0 && currentQuestion <= 2) sectionNumber = 1;
+                else if (currentQuestion >= 3 && currentQuestion <= 4) sectionNumber = 2;
+                else if (currentQuestion >= 5 && currentQuestion <= 6) sectionNumber = 3;
+                else if (currentQuestion >= 7 && currentQuestion <= 8) sectionNumber = 4;
+                else sectionNumber = 5;
+                
+                const translatedSection = t[`section${sectionNumber}`];
+                
+                const translatedOptions = question.options.map((opt, idx) => {
+                    const optKey = `${questionKey}_o${idx + 1}`;
+                    return t[optKey] || opt;
+                });
+
+                return (
+                    <div className="app-container">
+                        <div className="language-picker">
+                            <button 
+                                className={`lang-btn ${language === 'zh-TW' ? 'active' : ''}`}
+                                onClick={() => setLanguage('zh-TW')}
+                            >
+                                繁中
+                            </button>
+                            <button 
+                                className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+                                onClick={() => setLanguage('en')}
+                            >
+                                EN
+                            </button>
+                            <button 
+                                className={`lang-btn ${language === 'nl' ? 'active' : ''}`}
+                                onClick={() => setLanguage('nl')}
+                            >
+                                NL
+                            </button>
+                        </div>
+
+                        <div className="header">
+                            <h1>{t.title}</h1>
+                            <p>{t.questionOf.replace('{current}', currentQuestion + 1).replace('{total}', allQuestions.length)}</p>
+                        </div>
+
+                        <div className="questionnaire">
+                            <div className="progress-bar">
+                                <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                            </div>
+
+                            <div className="question-card">
+                                <span className="section-label">{translatedSection}</span>
+                                <h3>{questionText}</h3>
+                                {question.multiSelect && (
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--forest-green)', marginBottom: '1rem' }}>
+                                        {t.multiSelectHint}
+                                    </p>
+                                )}
+
+                                <div className="options">
+                                    {translatedOptions.map((option, idx) => {
+                                        const originalOption = question.options[idx];
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className={`option ${
+                                                    question.multiSelect 
+                                                        ? (currentAnswer?.includes(originalOption) ? 'multi-selected' : '')
+                                                        : (currentAnswer === originalOption ? 'selected' : '')
+                                                }`}
+                                                onClick={() => handleAnswer(question.id, originalOption)}
+                                            >
+                                                {option}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="navigation">
+                                    <button 
+                                        className="btn-secondary" 
+                                        onClick={prevQuestion}
+                                        disabled={currentQuestion === 0}
+                                        style={{ opacity: currentQuestion === 0 ? 0.5 : 1 }}
+                                    >
+                                        {t.previous}
+                                    </button>
+                                    <button 
+                                        className="btn-primary" 
+                                        onClick={nextQuestion}
+                                        disabled={!canProceed}
+                                        style={{ opacity: canProceed ? 1 : 0.5 }}
+                                    >
+                                        {currentQuestion === allQuestions.length - 1 ? t.seeResults : t.next}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (stage === 'results') {
+                if (matches.length === 0) {
+                    return (
+                        <div className="app-container">
+                            <div className="language-picker">
+                                <button 
+                                    className={`lang-btn ${language === 'zh-TW' ? 'active' : ''}`}
+                                    onClick={() => setLanguage('zh-TW')}
+                                >
+                                    繁中
+                                </button>
+                                <button 
+                                    className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+                                    onClick={() => setLanguage('en')}
+                                >
+                                    EN
+                                </button>
+                                <button 
+                                    className={`lang-btn ${language === 'nl' ? 'active' : ''}`}
+                                    onClick={() => setLanguage('nl')}
+                                >
+                                    NL
+                                </button>
+                            </div>
+
+                            <div className="header">
+                                <h1>{t.title}</h1>
+                            </div>
+
+                            <div className="no-matches">
+                                <h3>{t.noMatchesTitle}</h3>
+                                <p style={{ fontSize: '1.1rem', margin: '1rem 0' }}>
+                                    {t.noMatchesText}
+                                </p>
+
+                                <div className="suggestions">
+                                    <h4>{t.suggestionsTitle}</h4>
+                                    <ul>
+                                        <li>{t.suggestion1}</li>
+                                        <li>{t.suggestion2}</li>
+                                        <li>{t.suggestion3}</li>
+                                        <li>{t.suggestion4}</li>
+                                    </ul>
+                                </div>
+
+                                <div style={{ marginTop: '2rem' }}>
+                                    <button className="btn-primary" onClick={() => {
+                                        setStage('intro');
+                                        setCurrentQuestion(0);
+                                        setAnswers({});
+                                        setMatches([]);
+                                    }}>
+                                        {t.startOver}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                // Helper function to translate personality tags
+                const translateTag = (tag) => {
+                    const tagMap = {
+                        'Affectionate': 'tagAffectionate',
+                        'Calm': 'tagCalm',
+                        'Friendly': 'tagFriendly',
+                        'Energetic': 'tagEnergetic',
+                        'Playful': 'tagPlayful',
+                        'Loyal': 'tagLoyal',
+                        'Independent': 'tagIndependent',
+                        'Quiet': 'tagQuiet',
+                        'Gentle': 'tagGentle',
+                        'Active': 'tagActive',
+                        'Smart': 'tagSmart',
+                        'Sweet': 'tagSweet',
+                        'Alert': 'tagAlert',
+                        'Protective': 'tagProtective',
+                        'Intelligent': 'tagIntelligent'
+                    };
+                    return t[tagMap[tag]] || tag;
+                };
+
+                return (
+                    <div className="app-container">
+                        <div className="language-picker">
+                            <button 
+                                className={`lang-btn ${language === 'zh-TW' ? 'active' : ''}`}
+                                onClick={() => setLanguage('zh-TW')}
+                            >
+                                繁中
+                            </button>
+                            <button 
+                                className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+                                onClick={() => setLanguage('en')}
+                            >
+                                EN
+                            </button>
+                            <button 
+                                className={`lang-btn ${language === 'nl' ? 'active' : ''}`}
+                                onClick={() => setLanguage('nl')}
+                            >
+                                NL
+                            </button>
+                        </div>
+
+                        <div className="header">
+                            <h1>{t.resultsTitle}</h1>
+                            <p>{t.resultsSubtitle}</p>
+                        </div>
+
+                        <div className="results-section">
+                            <div className="user-profile">
+                                <h2>{t.yourProfile}</h2>
+                                <p>{getUserProfileDescription()}</p>
+                            </div>
+
+                            <div className="dog-cards">
+                                {matches.map((dog, idx) => (
+                                    <div key={dog.id} className="dog-card">
+                                        <div className="dog-image">{dog.image_emoji}</div>
+                                        <div className="dog-content">
+                                            <div className="dog-header">
+                                                <div>
+                                                    <h3 className="dog-name">{dog.name}</h3>
+                                                    <p className="dog-info">{dog.age} {t.years} • {dog.size}</p>
+                                                </div>
+                                                <div className="match-badge">
+                                                    {t.matchPercent.replace('{percent}', dog.matchPercentage)}
+                                                </div>
+                                            </div>
+
+                                            <div className="personality-tags">
+                                                {dog.personality_tags.map(tag => (
+                                                    <span key={tag} className="tag">{translateTag(tag)}</span>
+                                                ))}
+                                            </div>
+
+                                            <p style={{ margin: '1rem 0', color: 'var(--charcoal)' }}>
+                                                {dog.notes}
+                                            </p>
+
+                                            <div className="match-reason">
+                                                <h4>{t.whyThisDog.replace('{name}', dog.name)}</h4>
+                                                <p>{dog.reasons}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+                                <button className="btn-secondary" onClick={() => {
+                                    setStage('intro');
+                                    setCurrentQuestion(0);
+                                    setAnswers({});
+                                    setMatches([]);
+                                }}>
+                                    {t.startOver}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<DogAdoptionMatcher />, document.getElementById('root'));
+    </script>
+</body>
+</html>
